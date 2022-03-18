@@ -1,8 +1,9 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import Header from "../components/ui/Header";
-import NewLabForm from "../components/ui/home/NewLabform";
+import Header from "../components/Header";
+import NewLabForm from "../components/home/NewLabform";
+import SocketStatus from "../components/socketStatus";
 
 const Home: NextPage = () => {
   return (
@@ -15,15 +16,16 @@ const Home: NextPage = () => {
       <Header />
       <main className="mx-auto max-w-[1200px]">
         <header className="p-10">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold ">
+          <h1 className="text-3xl font-semibold sm:text-4xl md:text-5xl ">
             Instant Discussions, Experiements, Brainstorming Ideas and so on.
           </h1>
           <p></p>
         </header>
-        <div className="p-10 flex flex-col  justify-center items-center gap-2">
+        <div className="flex flex-col justify-between w-full gap-[5rem] p-10 sm:max-w-lg">
           <NewLabForm />
         </div>
       </main>
+      <SocketStatus />
     </>
   );
 };
