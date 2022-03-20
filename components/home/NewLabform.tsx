@@ -1,39 +1,48 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { useAppSelector, useAppDispatch } from "../../app/hooks";
-import { changeId, newId } from "../../features/user/userSlice";
-import { ImLab } from "react-icons/im";
+import { changeName } from "../../features/user/userSlice";
+import { ImCheckmark, ImLab } from "react-icons/im";
+import { FcCheckmark } from "react-icons/fc";
 import { useDispatch } from "react-redux";
+import ToastModal from "../ToastModal";
+import { setSocket } from "../../features/ws/wsSlice";
 export default function NewLabForm() {
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
+
+  const [toast, setToast] = useState(false);
   const user = useAppSelector((state) => state.user);
+
+  const ws = useAppSelector((state) => state.ws);
   const [error, setError] = useState("");
   const newRoom = () => {
     setLoading(true);
-    if (user.id === "" || inputRef.current?.value === "") {
+    if (user.name === "" || inputRef.current?.value === "") {
       setError(
-        "sorry, we dont allow either of user Id or Lab name to be empty"
+        "sorry, we dont allow either of user name or Lab name to be empty"
       );
+      setToast(true);
+      setTimeout(() => {
+        setToast(false);
+      }, 5000);
       setLoading(false);
       return;
     }
-
-    router.push(`/lab/${inputRef.current.value}`);
+    ws.currentWS.send(
+      JSON.stringify({ id: inputRef.current?.value, users: [user] })
+    );
+    // router.push(`/lab/${inputRef.current.value}`);
   };
 
   useEffect(() => {
     inputRef.current?.focus();
-    if (user.id === "") {
-      dispatch(newId());
-    }
   }, []);
-
   return (
     <>
-      <div className="flex flex-wrap items-end justify-start ">
+      <div className="flex flex-wrap items-center justify-start ">
         <label
           htmlFor="userInput"
           className="p-2 text-xs font-bold transition-all text-neutral-600 "
@@ -44,8 +53,8 @@ export default function NewLabForm() {
           type="text"
           name="userInput"
           placeholder="John"
-          defaultValue={user.id}
-          onChange={(e) => dispatch(changeId(e.currentTarget.value))}
+          defaultValue={user.name}
+          onChange={(e) => dispatch(changeName(e.currentTarget.value))}
           className="w-full p-2 text-sm transition border-b-2 sm:w-auto border-neutral-300 text-neutral-900 hover:border-blue-600/50 focus:outline-none focus:border-blue-600"
         />
       </div>
@@ -63,7 +72,7 @@ export default function NewLabForm() {
         </button>
 
         {/* Join lab action */}
-        <div className="flex flex-col items-start justify-start flex-grow w-full gap-10">
+        <div className="flex flex-col items-start justify-start w-full gap-10">
           <div className="flex flex-wrap justify-start gap-3 mx-auto sm:mx-0">
             <input
               type="text"
@@ -102,13 +111,9 @@ export default function NewLabForm() {
               ></path>
             </svg>
           )}
-          {!loading && error !== "" && (
-            <span className="p-3 text-sm font-normal text-red-500 rounded-lg bg-neutral-50">
-              {error}
-            </span>
-          )}
         </div>
       </div>
+      <ToastModal visible={toast} message={error} />
     </>
   );
 }

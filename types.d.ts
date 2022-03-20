@@ -1,1 +1,1 @@
-type ISocketStatus = "connecting" | "connected" | "disconnected";
+type ISocketStatus = boolean;

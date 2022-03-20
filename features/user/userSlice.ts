@@ -2,14 +2,14 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { customAlphabet } from "nanoid";
 const nanoid = customAlphabet("abcdefghijklmnopqrstuvwxyz", 5);
 type User = {
-  id: string;
+  name: string;
   labs: string[];
 };
 
 type cartState = User;
 
 const initialState: cartState = {
-  id: nanoid(),
+  name: "",
   labs: [],
 };
 
@@ -17,18 +17,15 @@ export const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    newId: (state) => {
-      return { id: nanoid(), labs: state.labs };
-    },
-    changeId: (state, action: PayloadAction<string>) => {
-      return { id: action.payload, labs: state.labs };
+    changeName: (state, action: PayloadAction<string>) => {
+      return { name: action.payload, labs: state.labs };
     },
     addLab: (state, action: PayloadAction<string>) => {
       state.labs.push(action.payload);
     },
     removeLab: (state, action: PayloadAction<string>) => {
       return {
-        id: state.id,
+        name: state.name,
         labs: state.labs.filter((x) => {
           return x !== action.payload;
         }),
@@ -40,4 +37,4 @@ export const userSlice = createSlice({
 // export reducers of the reservationsslice Object, which is basically functions
 export default userSlice.reducer;
 // export actions
-export const { changeId, addLab, removeLab, newId } = userSlice.actions;
+export const { changeName, addLab, removeLab } = userSlice.actions;
