@@ -42,7 +42,7 @@ export default function StatusCard() {
       tws.onopen = wsOpen;
       tws.onmessage = wsReceiveMessage;
       tws.onclose = wsClose;
-      dispatch(setSocket({ currentWS: tws, status: true }));
+      dispatch(setSocket({ currentWS: tws, status: false }));
     };
     newWS();
   }, [reset]);

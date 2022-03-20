@@ -1,8 +1,8 @@
 import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
 
 import userReducer from "../features/user/userSlice";
-
 import wsReducer from "../features/ws/wsSlice";
+
 // redux persist import requirements
 import storage from "redux-persist/lib/storage";
 import { combineReducers } from "redux";

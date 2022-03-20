@@ -78,12 +78,14 @@ export default function NewLabForm() {
               type="text"
               ref={inputRef}
               placeholder="Lab Name"
+              disabled={!ws.status}
               className="flex items-center justify-center w-full gap-1 p-3 px-5 py-3 font-medium transition rounded sm:w-8/12 ring-2 ring-neutral-300 text-neutral-900 hover:ring-blue-600/50 focus:ring-2 active:ring-offset-2 focus:outline-none focus:ring-blue-600"
             />
 
             <button
               type="button"
               aria-label="Join Lab"
+              disabled={!ws.status}
               className="px-4 py-2 mx-auto font-medium text-blue-600 transition rounded hover:bg-neutral-50 active:bg-blue-50 "
             >
               Join
