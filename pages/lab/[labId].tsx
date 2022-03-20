@@ -15,7 +15,7 @@ const Lab = () => {
       <main>
         <header>
           <h1 className="text-3xl font-semibold">{labId}</h1>
-          <h2 className="text-xl font-semibold"> user: {user.id}</h2>
+          <h2 className="text-xl font-semibold"> user: {user.name}</h2>
         </header>
       </main>
       <SocketStatus />
