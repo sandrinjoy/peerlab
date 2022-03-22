@@ -4,6 +4,21 @@ import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { setSocket, setStatus } from "../../features/ws/wsSlice";
 import StateBubble from "./StateBubble";
 import { RiRepeatLine, RiShutDownLine } from "react-icons/ri";
+import Router from "next/router";
+export const wsSendMessage = (type, payload = null) => {
+  switch (type) {
+    case "NEW_LAB": {
+      return { type: type };
+    }
+    case "FIND_LAB": {
+      return { type, payload };
+    }
+    default: {
+      return;
+    }
+  }
+};
+
 export default function StatusCard() {
   const [userId, setUserId] = useState(null);
   const ws = useAppSelector((state) => state.ws);
@@ -11,11 +26,24 @@ export default function StatusCard() {
   const [reset, setReset] = useState(false);
   const dispatch = useDispatch();
 
-  // function for wsOpen
-  const wsSendMessage = (msg) => {
-    try {
-      ws.currentWS.send(JSON.stringify(msg));
-    } catch {}
+  const messageController = (data) => {
+    const msg = JSON.parse(data);
+    switch (msg.type) {
+      case "NEW_USER": {
+      }
+      case "FIND_USER": {
+      }
+      case "NEW_LAB": {
+        Router.push(`lab/${msg.payload}`);
+      }
+      case "FIND_LAB": {
+      }
+      default: {
+      }
+    }
+  };
+  const wsReceiveMessage = (msg) => {
+    messageController(msg.data);
   };
 
   const wsOpen = () => {
@@ -23,18 +51,14 @@ export default function StatusCard() {
     dispatch(setStatus(true));
   };
 
-  const wsReceiveMessage = (msg) => {
-    msg = JSON.parse(msg);
-    if (msg.type === "ID_GENERATED") {
-      setUserId(msg.body.id);
-    }
-    console.log(msg.data);
-  };
   const wsClose = () => {
     try {
       ws.currentWS.close();
-      dispatch(setSocket({ currentWS: null, status: false }));
     } catch {}
+    dispatch(setSocket({ currentWS: null, status: false }));
+  };
+  const wsError = (e) => {
+    dispatch(setSocket({ currentWS: null, status: false }));
   };
   useEffect(() => {
     const newWS = () => {
@@ -42,13 +66,19 @@ export default function StatusCard() {
       tws.onopen = wsOpen;
       tws.onmessage = wsReceiveMessage;
       tws.onclose = wsClose;
-      dispatch(setSocket({ currentWS: tws, status: false }));
+      tws.onerror = wsError;
+
+      return tws;
     };
-    newWS();
+    const t = newWS();
+    dispatch(setSocket({ currentWS: t, status: false }));
+    return function cleanup() {
+      t.close();
+    };
   }, [reset]);
 
   return (
-    <div className="fixed bottom-0 flex items-center justify-between w-full gap-3 p-3 overflow-hidden text-xs font-semibold transition bg-neutral-100 ">
+    <div className="fixed bottom-0 flex items-center justify-between w-full gap-3 px-5 py-3 overflow-hidden text-xs font-semibold transition bg-neutral-100 ">
       <div className="flex items-center justify-center gap-3">
         <StateBubble socketStatus={ws.status} />
       </div>
@@ -57,6 +87,7 @@ export default function StatusCard() {
         <button onClick={() => setReset(!reset)}>
           <RiRepeatLine className="text-orange-500" />
         </button>
+
         <button onClick={wsClose}>
           <RiShutDownLine className="text-red-500" />
         </button>

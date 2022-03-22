@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useRef, useEffect, useState } from "react";
-
+import { ImGithub, ImInfo } from "react-icons/im";
 function Header() {
   const router = useRouter();
   const [showBorder, setShowBorder] = useState(false);
@@ -24,21 +24,21 @@ function Header() {
       <nav
         className={
           showBorder
-            ? `w-full  flex  flex-col md:flex-row justify-center items-center md:justify-between max-w-[1200px] mx-auto border-b transition-all`
-            : `w-full  flex  flex-col md:flex-row justify-center items-center md:justify-between max-w-[1200px] mx-auto transition-all border-b border-neutral-50 `
+            ? `w-full  flex flex-row  items-center justify-between max-w-[1200px] mx-auto border-b transition-all`
+            : `w-full  flex flex-row  items-center justify-between max-w-[1200px] mx-auto transition-all border-b border-neutral-50 `
         }
       >
         <div className="flex items-center justify-center py-2 md:py-4">
           <Link href="/" passHref>
             <a
               aria-label="homepage"
-              className="flex items-center gap-2 px-2 font-semibold transition group text-lg text-neutral-900 hover:text-indigo-500 "
+              className="flex items-center gap-2 text-lg font-semibold transition group text-neutral-900 hover:text-indigo-500 "
             >
               PeerLab
             </a>
           </Link>
         </div>
-        <div className="flex flex-wrap items-center justify-around py-3 gap-5 md:py-4">
+        <div className="flex flex-wrap items-center justify-around gap-5 py-3 md:py-4">
           {" "}
           <Link href="/about">
             <a
@@ -49,7 +49,7 @@ function Header() {
                   : "  font-medium text-sm   text-neutral-900   transition    hover:text-indigo-500 "
               }
             >
-              About
+              <ImInfo size={20} />
             </a>
           </Link>
           <Link href="/github">
@@ -61,7 +61,7 @@ function Header() {
                   : "  font-medium text-sm   text-neutral-900   transition   hover:text-indigo-500 "
               }
             >
-              Github
+              <ImGithub size={20} />
             </a>
           </Link>
         </div>
