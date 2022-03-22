@@ -9,9 +9,7 @@ import { wsSendMessage } from "../../components/socketStatus/StatusCard";
 export async function getServerSideProps(context) {
   const id = context.query.labId;
 
-  const res = await fetch(
-    `https://peerlab-server.herokuapp.com/findlab?id=${id}`
-  );
+  const res = await fetch(`${process.env.NEXT_PUBLIC_HTTPS}/findlab?id=${id}`);
   const data = await res.json();
   console.log(data);
   return {
