@@ -1,15 +1,22 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import { useAppSelector, useAppDispatch } from "../../app/hooks";
-import { changeName } from "../../features/user/userSlice";
 import { ImCheckmark, ImLab } from "react-icons/im";
-
+import Router from "next/router";
 import { useDispatch } from "react-redux";
 import ToastModal from "../ToastModal";
 import { setSocket } from "../../features/ws/wsSlice";
-import { wsSendMessage } from "../socketStatus/StatusCard";
+import { useWebSocket } from "../../ws/WebSocketContext";
+import {
+  joinLabRequest,
+  newLabRequest,
+  newUserRequest,
+  NEW_LAB,
+} from "../../ws/actions";
+
 export default function NewLabForm() {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const { ws, wsRestartConnection, status } = useWebSocket();
+
   const joinRef = useRef<HTMLInputElement>(null);
 
   const [loading, setLoading] = useState(false);
@@ -17,51 +24,50 @@ export default function NewLabForm() {
   const dispatch = useDispatch();
 
   const [toast, setToast] = useState(false);
-  const user = useAppSelector((state) => state.user);
 
-  const ws = useAppSelector((state) => state.ws);
   const [error, setError] = useState("");
 
-  const newRoom = () => {
-    setLoading(true);
-    if (user.name === "" || inputRef.current?.value === "") {
-      setError(
-        "sorry, we dont allow either of user name or Lab name to be empty"
-      );
+  const joinLabResponseHandler = (payload) => {
+    if (payload.valid) Router.push(`lab/${payload.id}`);
+    else {
+      setError("The lab doesn't exists on our server currently");
       setToast(true);
       setTimeout(() => {
         setToast(false);
       }, 3000);
-      setLoading(false);
-      return;
     }
-    ws.currentWS.send(
-      JSON.stringify({ id: inputRef.current?.value, users: [user] })
-    );
-    // router.push(`/lab/${inputRef.current.value}`);
   };
 
   useEffect(() => {
     joinRef.current?.focus();
   }, []);
+
+  const searchLab = async () => {
+    if (joinRef.current.value === "") return;
+    const res = await fetch(
+      process.env.NEXT_PUBLIC_HTTPS + "/findlab?id=" + joinRef.current.value
+    );
+    const data = await res.json();
+    joinLabResponseHandler(data);
+    // ws.send(JSON.stringify(joinLabRequest(joinRef.current.value)));
+  };
+
+  const newLabHandler = () => {
+    ws.send(JSON.stringify(newLabRequest()));
+  };
   return (
     <>
-      <div className="flex flex-wrap items-center justify-start ">
+      {/* <div className="flex flex-wrap items-center justify-start ">
         <label
           htmlFor="userInput"
           className="p-2 font-bold transition-all text-neutral-600 "
         >
           User ID
         </label>
-        <input
-          type="text"
-          name="userInput"
-          placeholder="Enter a name"
-          defaultValue={user.name}
-          onChange={(e) => dispatch(changeName(e.currentTarget.value))}
-          className="w-full p-2 transition border-b-2 sm:w-auto border-neutral-300 text-neutral-900 hover:border-blue-600/50 focus:outline-none focus:border-blue-600"
-        />
-      </div>
+        <span className="p-2 transition text-normal sm:w-auto border-neutral-300 text-neutral-900 hover:border-blue-600/50 focus:outline-none focus:border-blue-600">
+          {user.name}
+        </span>
+      </div> */}
 
       {/* newLab action */}
       <div className="flex flex-wrap items-center justify-start ">
@@ -69,9 +75,7 @@ export default function NewLabForm() {
           type="button"
           aria-label="New Lab"
           className="flex items-center justify-center w-full gap-1 px-5 py-3 font-medium transition bg-blue-600 rounded text-neutral-50 hover:bg-blue-700 active:bg-blue-800 active:ring-2 active:ring-offset-4 focus:ring-2 focus:ring-offset-2"
-          onClick={() =>
-            ws.currentWS?.send(JSON.stringify(wsSendMessage("NEW_LAB")))
-          }
+          onClick={newLabHandler}
         >
           <ImLab />
           New Lab
@@ -80,7 +84,7 @@ export default function NewLabForm() {
 
       {/* Join lab action */}
       <div className="flex-col items-center justify-center ">
-        <div className="flex justify-between gap-2 p-1 transition rounded ring-2 ring-neutral-300 text-neutral-900 hover:ring-blue-600/50 focus-within:ring-2 active-within:ring-blue-600 active:ring-offset-2 focus-within:ring-blue-600">
+        <div className="flex justify-between gap-2 p-1 transition rounded ring-2 ring-neutral-300 text-neutral-900 hover:ring-blue-600 focus-within:ring-2 active-within:ring-blue-600 active:ring-offset-2 focus-within:ring-blue-600">
           <input
             type="text"
             ref={joinRef}
@@ -90,6 +94,7 @@ export default function NewLabForm() {
           <button
             type="button"
             aria-label="Join Lab"
+            onClick={searchLab}
             className="px-4 py-2 font-medium text-blue-600 transition rounded hover:bg-neutral-50 active:bg-blue-50 disabled:text-gray-600 "
           >
             Join

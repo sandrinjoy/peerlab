@@ -9,7 +9,7 @@ type User = {
 type cartState = User;
 
 const initialState: cartState = {
-  name: "",
+  name: nanoid(),
   labs: [],
 };
 
@@ -17,9 +17,6 @@ export const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    changeName: (state, action: PayloadAction<string>) => {
-      return { name: action.payload, labs: state.labs };
-    },
     addLab: (state, action: PayloadAction<string>) => {
       state.labs.push(action.payload);
     },
@@ -37,4 +34,4 @@ export const userSlice = createSlice({
 // export reducers of the reservationsslice Object, which is basically functions
 export default userSlice.reducer;
 // export actions
-export const { changeName, addLab, removeLab } = userSlice.actions;
+export const { addLab, removeLab } = userSlice.actions;
